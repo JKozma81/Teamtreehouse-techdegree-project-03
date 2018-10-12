@@ -39,6 +39,8 @@ a {
 form {
 	padding: .875em 1.875em 1.875em;
 	background: #85b5ca;
+	/* Added a little radius to the border */
+	border-radius: 10px;
 }
 
 fieldset,
@@ -86,13 +88,16 @@ input {
 	font-weight: 500;
 	padding: .8em;
 	background: #c1deeb;
-	border: 2px solid #c1deeb;
+	/* Removed the original border style and added a new one */
+	/*border: 2px solid #c1deeb;*/
+	border: none;
 	outline: none;
 }
 
 input:focus {
 	background: #fff;
 	border-color: #5e97b0;
+	border-bottom: 3px solid #1e06f8;
 	transition: border-color .4s, background-color .4s;
 }
 
@@ -148,6 +153,7 @@ button:hover {
   display: table;
   clear: both;
 }
+
 
 /* ================================= 
   Media Queries
