@@ -7,9 +7,6 @@ border-bottom: 3px solid #1e06f8; input field border style on focus
 border-bottom: 3px solid #4bf806; input field border style on ok
 border: 3px solid #f80606; input field border style on error
 
-name regexp \w*\s\w*
-email regexp ^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$
-
 */
 
 
@@ -28,7 +25,10 @@ const $shirtColorContainer = $('#colors-js-puns')
 const $shirtColor = $('#color');
 const $colors = $('#color option');
 
-const $activities = $('.activities');
+const $activity = $('.activities');
+const $activityTitle = $('.activities legend');
+const $activities = $('.activities input');
+
 
 const $payment = $('#payment');
 const $crediCard = $('#credit-card');
@@ -46,7 +46,6 @@ $(() => {
     $userNameField.focus();
     $jobRoleField.hide();
     $shirtColorContainer.hide();
-    $nameInfo.css('display', 'none');
 })
 
 /*
@@ -61,34 +60,25 @@ $(() => {
 */
 const generateLabel = (text, icon, position, displayType, id, col) => {
     const $fieldInfo = $(`<label id=${id}>${icon}<i> ${text}</i></label>`);
-
     $fieldInfo.insertAfter(position);
     $('#' + id).css({
         display: displayType,
-        paddingLeft: '10px',
         color: col
     });
-
     return $('#' + id);
 }
 
 
 
-const $nameInfo = generateLabel('Only letters are allowed', 
-                                '<i class="fas fa-info-circle"></i>', 
-                                $nameLabel, 
-                                'none', 
-                                'nameInform', 
-                                '#c0dceb');
-
-$nameInfo.prev().css('display', 'inline-block');
-
+// Creating messages for name validation with the helper function i created above
 const $nameError = generateLabel('Not a valid name or field is empty', 
                                  '<i class="fas fa-exclamation-triangle"></i>', 
                                  $nameLabel, 
                                  'none', 
                                  'nameError', 
                                  '#f80606');
+
+$nameError.prev().css('display', 'inline-block');
 
 const $nameOk = generateLabel('Ok', 
                               '<i class="far fa-check-circle"></i>', 
@@ -97,45 +87,119 @@ const $nameOk = generateLabel('Ok',
                               'nameOk', 
                               '#4bf806');
 
+// Creating messages for email validation with the helper function i created above
+const $emailError = generateLabel('Not a valid email address or field is empty', 
+                                  '<i class="fas fa-exclamation-triangle"></i>', 
+                                  $emailLabel, 
+                                  'none', 
+                                  'emailError', 
+                                  '#f80606');
 
-
-/////
-const $emailInfo = generateLabel('Only letters are allowed', 
-                                '<i class="fas fa-info-circle"></i>', 
-                                $emailLabel, 
-                                'none', 
-                                'nameInform', 
-                                '#c0dceb');
-
-$emailInfo.prev().css('display', 'inline-block');
-
-const $emailError = generateLabel('Not a valid name or field is empty', 
-                                 '<i class="fas fa-exclamation-triangle"></i>', 
-                                 $emailLabel, 
-                                 'none', 
-                                 'nameError', 
-                                 '#f80606');
+$emailError.prev().css('display', 'inline-block');
 
 const $emailOk = generateLabel('Ok', 
-                              '<i class="far fa-check-circle"></i>', 
-                              $emailLabel, 
-                              'none', 
-                              'nameOk', 
-                              '#4bf806');
+                               '<i class="far fa-check-circle"></i>', 
+                               $emailLabel, 
+                               'none', 
+                               'emaillOk', 
+                               '#4bf806');
 
-// Adding validation to the basic info section
-const validateName = () => {
-    const isValidName = () => /\w*\s\w*/.test($userNameField.val());
+// Creating messages for activity validation with the helper function i created above
+const $activityError = generateLabel('No activity selected, please chose one', 
+                                     '<i class="fas fa-exclamation-triangle"></i>', 
+                                     $activityTitle, 
+                                     'none', 
+                                     'activityError', 
+                                     '#f80606');
 
-    if (isValidName === true) {
-        $nameError.css('display', 'none')
-        $nameOk.css('display', 'inline-block');
-        $nameInfo.css('display', 'none');
+$activityError.prev().css('display', 'inline-block');
 
-    } else {
-        $nameError.css('display', 'inline-block')
-        $nameOk.css('display', 'none');
-        $nameInfo.css('display', 'none');
+const $activityOk = generateLabel('Ok', 
+                                  '<i class="far fa-check-circle"></i>', 
+                                  $activityTitle, 
+                                  'none', 
+                                  'activityOk', 
+                                  '#4bf806');
+
+
+// Helper functions to display and hide messages
+const hideErrorMessage = (message) => {
+    message.css('display', 'none');
+}
+
+const showErrorMessage = (message) => {
+    message.css('display', 'inline-block')
+    message.fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500);
+}
+
+const showOkMessage = (message) => {
+    message.css('display', 'inline-block');
+}
+
+const hideOkMessage = (message) => {
+    message.css('display', 'none');
+}
+
+
+// Helper function to validate
+/*
+    Parameters:
+        'name': validates the name and displays the appropriate message to the user
+        'email': validates the email and displays the appropriate message to the user
+        'color': validates the T-Shirt Info section, if no design selected hides the color selection option
+        'activity': validates the Activities section, if no activity selected displays a message to the user
+*/
+const validating = (targetToValidate) => {
+
+    switch (targetToValidate) {
+        case 'name' : const isValidName = () => /\w+\s\w+/i.test($userNameField.val());
+                    
+                      if (isValidName() === true) {
+                          hideErrorMessage($nameError);
+                          showOkMessage($nameOk);
+                          $userNameField.css('borderBottom', '3px solid #4bf806');
+                      } else {
+                          showErrorMessage($nameError);
+                          hideOkMessage($nameOk);
+                          $userNameField.css('border', '3px solid #f80606');
+                      }
+                      
+                      break;
+    
+        case 'email' : const isValidEmail = () => /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i.test($userEmail.val());
+                    
+                       if (isValidEmail() === true) {
+                           hideErrorMessage($emailError);
+                           showOkMessage($emailOk);
+                           $userEmail.css('borderBottom', '3px solid #4bf806');
+                       } else {
+                           showErrorMessage($emailError);
+                           hideOkMessage($emailOk);
+                           $userEmail.css('border', '3px solid #f80606');
+                       }
+                       break;
+
+        case 'color' : if ($shirtDesign.val() === 'Select Theme') {
+                           $shirtColorContainer.hide();
+                       }
+                       break;
+
+        case 'activity' : 
+                       let counter = 0;
+                       $activities.each(function() {
+                            if ($(this).is(':checked') === true) {
+                                counter += 1;
+                            }
+                       })
+
+                       if (counter === 0) {
+                            showErrorMessage($activityError);
+                            hideOkMessage($activityOk);
+                       } else {
+                            showOkMessage($activityOk);
+                            hideErrorMessage($activityError);
+                       }
+                       break
     }
 }
 
@@ -143,17 +207,30 @@ const validateName = () => {
 
 // Event listeners
 
-$userNameField.on('blur', validateName);
+$userNameField.on('blur', () => validating('name'));
+$userEmail.on('blur', () => validating('email'));
+
 
 $userNameField.on('focus', () => {
-    $nameError.css('display', 'none')
-    $nameOk.css('display', 'none');
-    $nameInfo.css('display', 'inline-block');
+    hideErrorMessage($nameError);
+    hideOkMessage($nameOk);
+    $userNameField.css({
+        border: '',
+        borderBottom: '3px solid #1e06f8'
+    })
+})
+
+$userEmail.on('focus', () => {
+    hideErrorMessage($emailError);
+    hideOkMessage($emailOk);
+    $userEmail.css({
+        border: '',
+        borderBottom: '3px solid #1e06f8'
+    })
 })
 
 
-
-// Listening to change event and if the other option is chosen then the textfield shows to enter job role
+// Listening to change event and if the other option is selectef the textfield appears to enter job role
 $jobTitle.on('change', () => {
    if ($jobTitle.val() === 'other') {
     $jobRoleField.show();
@@ -162,12 +239,37 @@ $jobTitle.on('change', () => {
    }
 });
 
+// Showing the appropriate color when the design is selected
 $shirtDesign.on('change', () => {
     $shirtColorContainer.show();
 
-    $colors.each(function() {
-        $(this).wrap('<span></span>').hide();
-    });
+    switch ($shirtDesign.val()) {
+        case 'js puns' :
+                $colors.each(function() {
+                    let puns = $(this).text();
+                    if (puns.indexOf("JS Puns") > -1) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+                $colors.eq(0).prop('selected', true)
+                break;
+
+        case 'heart js':
+                $colors.each(function() {
+                    let heart = $(this).text();
+                    if (heart.indexOf('JS shirt only') > -1) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+                $colors.eq(3).prop('selected', true)
+                break;
+    }
+    validating('color');
+    
 });
 
 
@@ -178,4 +280,5 @@ $shirtDesign.on('change', () => {
 // Preventing the form default submit function with the preventDefault methode
 $submit.on('click', (e) => {
     e.preventDefault();
+    validating('activity');
 })
