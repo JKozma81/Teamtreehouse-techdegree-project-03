@@ -27,6 +27,7 @@ const $colors = $('#color option');
 
 const $activity = $('.activities');
 const $activityTitle = $('.activities legend');
+const $activityDescriptions = $('.activities label');
 const $activities = $('.activities input');
 
 
@@ -39,6 +40,9 @@ const $expMonth = $('#exp-month');
 const $expYear = $('#exp-year');
 
 const $submit = $('button');
+
+// Helper array
+let activityTime = [];
 
 // DOM Ready event handler
 $(() => {
@@ -227,6 +231,38 @@ $userEmail.on('focus', () => {
         border: '',
         borderBottom: '3px solid #1e06f8'
     })
+})
+
+
+// Disable the activity that is in the same time as the chosen
+$activities.on('change', function() { 
+    let dayAndHour = $(this).parent().text().trim().split(' — ')[1];
+
+    if (!activityTime.includes(dayAndHour)) {
+        activityTime.push(dayAndHour);
+                
+    } else if ($(this).is(':checked') === false && activityTime.includes(dayAndHour) === true) {
+        activityTime.splice(activityTime.indexOf(dayAndHour), 1);
+    }
+
+    $activities.each(function() {
+        if (!$(this).is(':checked') && activityTime.includes($(this).parent().text().trim().split(' — ')[1])) {
+                $(this).prop('disabled', true);
+                $(this).parent().css({
+                                      color: '#c1deeb',
+                                      fontStyle: 'italic',
+                                      textDecorationLine: 'line-through'
+                                    });   
+        } else {
+            $(this).prop('disabled', false)
+                            $(this).parent().css({
+                                color: '',
+                                fontStyle: '',
+                                textDecorationLine: ''
+                            });
+        }
+    })
+
 })
 
 
