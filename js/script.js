@@ -9,40 +9,42 @@ border: 3px solid #f80606; input field border style on error
 
 */
 
-
 // Selecting form elements for further work
+// Basic info section
 const $nameLabel = $('form fieldset label[for="name"]');
 const $userNameField = $('#name');
 const $emailLabel = $('form fieldset label[for="mail"]');
 const $userEmail = $('#mail');
 const $jobTitle = $('#title');
 const $jobRoleField = $('#other-title');
-
+// T-shirt section
 const $shirtSize = $('#size');
 const $shirtdesignContainer = $('.shirt div').eq(1);
 const $shirtDesign = $('#design');
 const $shirtColorContainer = $('#colors-js-puns')
 const $shirtColor = $('#color');
 const $colors = $('#color option');
-
+// Activity section
 const $activity = $('.activities');
 const $activityTitle = $('.activities legend');
 const $activityDescriptions = $('.activities label');
 const $activities = $('.activities input');
-
-
+// Payment section
 const $payment = $('#payment');
-const $crediCard = $('#credit-card');
+const $creditCard = $('#credit-card');
 const $ccNum = $('#cc-num');
 const $zip = $('#zip');
 const $cvv = $('#cvv');
 const $expMonth = $('#exp-month');
 const $expYear = $('#exp-year');
+const $paypal = $('form fieldset:nth-of-type(4)>div:nth-of-type(2)');
+const $bitcoin = $('form fieldset:nth-of-type(4)>div:nth-of-type(3)');
 
 const $submit = $('button');
 
-// Helper array
+// Helper variables
 let activityTime = [];
+let priceToPay = 0;
 
 // DOM Ready event handler
 $(() => {
@@ -50,20 +52,25 @@ $(() => {
     $userNameField.focus();
     $jobRoleField.hide();
     $shirtColorContainer.hide();
+    createPriceDisplay();
+    $('option[value="credit card"]').prop('selected', true);
+    // Paypal
+    $paypal.hide();
+    // Bitcoin
+    $bitcoin.hide();
 })
 
 /*
  Helper function to create labels for messages
     Parameters:
-        text: Text to display
         icon: Icon for the message
         position: DOM element after witch the label is inserted
         displayType: CSS display propety
         id: ID that identifying the label
         col: CSS color
 */
-const generateLabel = (text, icon, position, displayType, id, col) => {
-    const $fieldInfo = $(`<label id=${id}>${icon}<i> ${text}</i></label>`);
+const generateLabel = (icon, position, displayType, id, col) => {
+    const $fieldInfo = $(`<label id=${id}>${icon}<i> <span></span></i></label>`);
     $fieldInfo.insertAfter(position);
     $('#' + id).css({
         display: displayType,
@@ -72,11 +79,8 @@ const generateLabel = (text, icon, position, displayType, id, col) => {
     return $('#' + id);
 }
 
-
-
 // Creating messages for name validation with the helper function i created above
-const $nameError = generateLabel('Not a valid name or field is empty', 
-                                 '<i class="fas fa-exclamation-triangle"></i>', 
+const $nameError = generateLabel('<i class="fas fa-exclamation-triangle"></i>', 
                                  $nameLabel, 
                                  'none', 
                                  'nameError', 
@@ -84,16 +88,14 @@ const $nameError = generateLabel('Not a valid name or field is empty',
 
 $nameError.prev().css('display', 'inline-block');
 
-const $nameOk = generateLabel('Ok', 
-                              '<i class="far fa-check-circle"></i>', 
+const $nameOk = generateLabel('<i class="far fa-check-circle"></i>', 
                               $nameLabel, 
                               'none', 
                               'nameOk', 
                               '#4bf806');
 
 // Creating messages for email validation with the helper function i created above
-const $emailError = generateLabel('Not a valid email address or field is empty', 
-                                  '<i class="fas fa-exclamation-triangle"></i>', 
+const $emailError = generateLabel('<i class="fas fa-exclamation-triangle"></i>', 
                                   $emailLabel, 
                                   'none', 
                                   'emailError', 
@@ -101,16 +103,14 @@ const $emailError = generateLabel('Not a valid email address or field is empty',
 
 $emailError.prev().css('display', 'inline-block');
 
-const $emailOk = generateLabel('Ok', 
-                               '<i class="far fa-check-circle"></i>', 
+const $emailOk = generateLabel('<i class="far fa-check-circle"></i>', 
                                $emailLabel, 
                                'none', 
-                               'emaillOk', 
+                               'emailOk', 
                                '#4bf806');
 
 // Creating messages for activity validation with the helper function i created above
-const $activityError = generateLabel('No activity selected, please chose one', 
-                                     '<i class="fas fa-exclamation-triangle"></i>', 
+const $activityError = generateLabel('<i class="fas fa-exclamation-triangle"></i>', 
                                      $activityTitle, 
                                      'none', 
                                      'activityError', 
@@ -118,13 +118,50 @@ const $activityError = generateLabel('No activity selected, please chose one',
 
 $activityError.prev().css('display', 'inline-block');
 
-const $activityOk = generateLabel('Ok', 
-                                  '<i class="far fa-check-circle"></i>', 
+const $activityOk = generateLabel('<i class="far fa-check-circle"></i>', 
                                   $activityTitle, 
                                   'none', 
                                   'activityOk', 
                                   '#4bf806');
 
+// Creating messages for CVV number validation with the helper function i created above
+const $cvvError = generateLabel('<i class="fas fa-exclamation-triangle"></i>', 
+                                $payment, 
+                                'none', 
+                                'cvvError', 
+                                '#f80606');
+
+const $cvvOk = generateLabel('<i class="far fa-check-circle"></i>', 
+                             $payment, 
+                             'none', 
+                             'cvvOk', 
+                             '#4bf806');
+
+// Creating messages for Zip number validation with the helper function i created above
+const $zipError = generateLabel('<i class="fas fa-exclamation-triangle"></i>', 
+                                $payment, 
+                                'none', 
+                                'zipError', 
+                                '#f80606');
+
+const $zipOk = generateLabel('<i class="far fa-check-circle"></i>', 
+                             $payment, 
+                             'none', 
+                             'zipOk', 
+                             '#4bf806');
+
+// Creating messages for Credit card number validation with the helper function i created above
+const $creditCardError = generateLabel('<i class="fas fa-exclamation-triangle"></i>', 
+                                     $payment, 
+                                     'none', 
+                                     'creditCardError', 
+                                     '#f80606');
+
+const $creditCardOk = generateLabel('<i class="far fa-check-circle"></i>', 
+                                  $payment, 
+                                  'none', 
+                                  'creditCardOk', 
+                                  '#4bf806');
 
 // Helper functions to display and hide messages
 const hideErrorMessage = (message) => {
@@ -132,112 +169,207 @@ const hideErrorMessage = (message) => {
 }
 
 const showErrorMessage = (message) => {
-    message.css('display', 'inline-block')
+    message.css('display', 'block')
     message.fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500);
 }
 
 const showOkMessage = (message) => {
-    message.css('display', 'inline-block');
+    message.css('display', 'block');
 }
 
 const hideOkMessage = (message) => {
     message.css('display', 'none');
 }
 
-
-// Helper function to validate
-/*
-    Parameters:
-        'name': validates the name and displays the appropriate message to the user
-        'email': validates the email and displays the appropriate message to the user
-        'color': validates the T-Shirt Info section, if no design selected hides the color selection option
-        'activity': validates the Activities section, if no activity selected displays a message to the user
-*/
-const validating = (targetToValidate) => {
-
-    switch (targetToValidate) {
-        case 'name' : const isValidName = () => /\w+\s\w+/i.test($userNameField.val());
-                    
-                      if (isValidName() === true) {
-                          hideErrorMessage($nameError);
-                          showOkMessage($nameOk);
-                          $userNameField.css('borderBottom', '3px solid #4bf806');
-                      } else {
-                          showErrorMessage($nameError);
-                          hideOkMessage($nameOk);
-                          $userNameField.css('border', '3px solid #f80606');
-                      }
-                      
-                      break;
-    
-        case 'email' : const isValidEmail = () => /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i.test($userEmail.val());
-                    
-                       if (isValidEmail() === true) {
-                           hideErrorMessage($emailError);
-                           showOkMessage($emailOk);
-                           $userEmail.css('borderBottom', '3px solid #4bf806');
-                       } else {
-                           showErrorMessage($emailError);
-                           hideOkMessage($emailOk);
-                           $userEmail.css('border', '3px solid #f80606');
-                       }
-                       break;
-
-        case 'color' : if ($shirtDesign.val() === 'Select Theme') {
-                           $shirtColorContainer.hide();
-                       }
-                       break;
-
-        case 'activity' : 
-                       let counter = 0;
-                       $activities.each(function() {
-                            if ($(this).is(':checked') === true) {
-                                counter += 1;
-                            }
-                       })
-
-                       if (counter === 0) {
-                            showErrorMessage($activityError);
-                            hideOkMessage($activityOk);
-                       } else {
-                            showOkMessage($activityOk);
-                            hideErrorMessage($activityError);
-                       }
-                       break
+// Function to validate name field
+const validateName = () => {
+    if ($userNameField.val().length === 0) {
+        $('#nameError span').text('Field blank, please enter your name');
+        showErrorMessage($nameError);
+        hideOkMessage($nameOk);
+        $userNameField.css('border', '3px solid #f80606');
+    } else {
+        const isValidName = () => /\w+\s\w+/i.test($userNameField.val());
+                   
+        if (isValidName() === true) {
+            $('#nameOk span').text('Name OK');
+            hideErrorMessage($nameError);
+            showOkMessage($nameOk);
+            $userNameField.css({border: '',
+                            borderBottom: '3px solid #4bf806'});
+        } else {
+            $('#nameError span').text('Not a valide name');
+            showErrorMessage($nameError);
+            hideOkMessage($nameOk);
+            $userNameField.css('border', '3px solid #f80606');
+        }
     }
 }
 
+// Function to validate email address
+const validateEmail = () => {
 
+    if ($userEmail.val().length === 0) {
+        $('#emailError span').text('Field blank, please enter your email');
+        showErrorMessage($emailError);
+        hideOkMessage($emailOk);
+        $userEmail.css('border', '3px solid #f80606');
+    } else {
+        const isValidEmail = () => /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i.test($userEmail.val());
+                    
+        if (isValidEmail() === true) {
+            $('#emailOk span').text('Email address OK');
+            hideErrorMessage($emailError);
+            showOkMessage($emailOk);
+            $userEmail.css({border: '',
+                            borderBottom: '3px solid #4bf806'});
+        } else {
+            $('#emailError span').text('Not a valide email address');
+            showErrorMessage($emailError);
+            hideOkMessage($emailOk);
+            $userEmail.css('border', '3px solid #f80606');
+        }
+    }
+}
+
+// Function to hide colors when no design selected
+const validateColors = () => {
+    if ($shirtDesign.val() === 'Select Theme') {
+        $shirtColorContainer.hide();
+    }
+}
+
+// Function to validate activity
+const validateActivity = () => {
+    let counter = 0;
+
+    $activities.each(function() {
+         if ($(this).is(':checked') === true) {
+             counter += 1;
+         }
+    })
+
+    if (counter === 0) {
+        $('#activityError span').text('No activity selected');
+         showErrorMessage($activityError);
+         hideOkMessage($activityOk);
+    } else {
+        $('#activityOk span').text('Activity selected');
+         showOkMessage($activityOk);
+         hideErrorMessage($activityError);
+    }
+}
+
+// Function to validate credit card
+const validateCreditCard = () => {
+    let cardNumberLength = $ccNum.val().length;
+    let zipCodeLength = $zip.val().length;
+    let cvvNumberLength = $cvv.val().length;
+    let cardNumber = parseInt($ccNum.val());
+    let zipCode = parseInt($zip.val());
+    let cvvNumber = parseInt($cvv.val());
+
+    if (cardNumberLength === 0) {
+        showErrorMessage($creditCardError);
+        $('#creditCardError span').text('Field blank, please enter the card number');
+        $ccNum.css('border', '3px solid #f80606');
+        hideOkMessage($creditCardOk);        
+    } else if (!isNaN(parseInt(cardNumber)) && (cardNumberLength >= 13 && cardNumberLength <= 15)) {
+        showOkMessage($creditCardOk);
+        $('#creditCardOk span').text('Card number OK');
+        $ccNum.css({border: '',
+                    borderBottom: '3px solid #4bf806'});
+        hideErrorMessage($creditCardError);
+    } else {
+        showErrorMessage($creditCardError);
+        $('#creditCardError span').text('Not a valid card number');
+        $ccNum.css('border', '3px solid #f80606');
+        hideOkMessage($creditCardOk);
+    }
+
+    if (zipCodeLength === 0) {
+        showErrorMessage($zipError);
+        $('#zipError span').text('Field blank, please enter the your zip number');
+        $zip.css('border', '3px solid #f80606');
+        hideOkMessage($zipOk);        
+    } else if (!isNaN(parseInt(zipCode)) && (zipCodeLength === 5)) {
+        showOkMessage($zipOk);
+        $('#zipOk span').text('Zip number OK');
+        $zip.css({border: '',
+                  borderBottom: '3px solid #4bf806'});
+        hideErrorMessage($zipError);
+    } else {
+        showErrorMessage($zipError);
+        $('#zipError span').text('Not a valid zip number');
+        $zip.css('border', '3px solid #f80606');
+        hideOkMessage($zipOk);
+    }
+
+    if (cvvNumberLength === 0) {
+        showErrorMessage($cvvError);
+        $('#cvvError span').text('Field blank, please enter the CVV number');
+        $cvv.css('border', '3px solid #f80606');
+        hideOkMessage($cvvOk);        
+    } else if (!isNaN(parseInt(cvvNumber)) && (cvvNumberLength === 3)) {
+        showOkMessage($cvvOk);
+        $('#cvvOk span').text('CVV number OK');
+        $cvv.css({border: '',
+                  borderBottom: '3px solid #4bf806'});
+        hideErrorMessage($cvvError);
+    } else {
+        showErrorMessage($cvvError);
+        $('#cvvError span').text('Not a valid CVV number');
+        $cvv.css('border', '3px solid #f80606');
+        hideOkMessage($cvvOk);
+    }
+}
+
+// Create label for the total price to display
+const createPriceDisplay = () => {
+    $activity.append(`<label id="total">Total price: $<span id="price"></span></label>`);
+    $('label#total').css({
+        color : '#184f68',
+        fontWeight: 'bold',
+    });
+    $('#total').hide();
+}
 
 // Event listeners
-
-$userNameField.on('blur', () => validating('name'));
-$userEmail.on('blur', () => validating('email'));
-
+$userEmail.on('keyup', () => validateEmail());
+$ccNum.on('keyup', () => validateCreditCard());
+$zip.on('keyup', () => validateCreditCard());
+$cvv.on('keyup', () => validateCreditCard());
 
 $userNameField.on('focus', () => {
     hideErrorMessage($nameError);
     hideOkMessage($nameOk);
-    $userNameField.css({
-        border: '',
-        borderBottom: '3px solid #1e06f8'
-    })
 })
 
 $userEmail.on('focus', () => {
     hideErrorMessage($emailError);
     hideOkMessage($emailOk);
-    $userEmail.css({
-        border: '',
-        borderBottom: '3px solid #1e06f8'
-    })
 })
 
+$ccNum.on('focus', () => {
+    hideErrorMessage($creditCardError);
+    hideOkMessage($creditCardOk);
+})
+
+$zip.on('focus', () => {
+    hideErrorMessage($zipError);
+    hideOkMessage($zipOk);
+})
+
+$cvv.on('focus', () => {
+    hideErrorMessage($cvvError);
+    hideOkMessage($cvvOk);
+})
 
 // Disable the activity that is in the same time as the chosen
-$activities.on('change', function() { 
-    let dayAndHour = $(this).parent().text().trim().split(' — ')[1];
-
+$activities.on('change', function() {
+    let dayAndHour = $(this).parent().text().slice($(this).parent().text().indexOf('—') + 2, $(this).parent().text().indexOf('$'));
+    $('#total').show();
+    
     if (!activityTime.includes(dayAndHour)) {
         activityTime.push(dayAndHour);
                 
@@ -245,8 +377,20 @@ $activities.on('change', function() {
         activityTime.splice(activityTime.indexOf(dayAndHour), 1);
     }
 
+    let $cost = $(this).parent().text().slice($(this).parent().text().indexOf('$') + 1, $(this).parent().text().length);
+    let dollars = $('#price').text();
+    if ($(this).is(':checked') === true) {
+        priceToPay += parseInt($cost);
+        dollars = priceToPay;
+    } else {
+        priceToPay -= parseInt($cost);
+        dollars = priceToPay;
+    }
+    $('#price').text(dollars);
+
     $activities.each(function() {
-        if (!$(this).is(':checked') && activityTime.includes($(this).parent().text().trim().split(' — ')[1])) {
+               
+        if (!$(this).is(':checked') && activityTime.includes($(this).parent().text().slice($(this).parent().text().indexOf('—') + 2, $(this).parent().text().indexOf('$')))) {
                 $(this).prop('disabled', true);
                 $(this).parent().css({
                                       color: '#c1deeb',
@@ -262,7 +406,6 @@ $activities.on('change', function() {
                             });
         }
     })
-
 })
 
 
@@ -304,17 +447,43 @@ $shirtDesign.on('change', () => {
                 $colors.eq(3).prop('selected', true)
                 break;
     }
-    validating('color');
-    
+    validating('color'); 
 });
 
+$payment.on('change', () => {
 
+    switch ($payment.val()) {
+        case 'credit card' : 
+                            $creditCard.show();
+                            $paypal.hide();
+                            $bitcoin.hide();
+                            break;
 
+        case 'paypal' : 
+                        $creditCard.hide();
+                        $paypal.show();
+                        $bitcoin.hide();
+                        break;
 
+        case 'bitcoin' :
+                        $creditCard.hide();
+                        $paypal.hide();
+                        $bitcoin.show();
+                        break;
+
+        case 'select methode' :
+                        $creditCard.hide();
+                        $paypal.hide();
+                        $bitcoin.hide();
+                        break;
+    }
+
+})
 
 
 // Preventing the form default submit function with the preventDefault methode
 $submit.on('click', (e) => {
     e.preventDefault();
     validating('activity');
+    validateCreditCard();
 })
