@@ -97,7 +97,6 @@ input {
 input:focus {
 	background: #fff;
 	border-color: #5e97b0;
-	border-bottom: 3px solid #1e06f8;
 	transition: border-color .4s, background-color .4s;
 }
 

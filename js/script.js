@@ -21,6 +21,7 @@ const $activityDescriptions = $('.activities label');
 const $activities = $('.activities input');
 // Payment section
 const $payment = $('#payment');
+const $errorContainer = $('form fieldset:nth-of-type(4)');
 const $creditCard = $('#credit-card');
 const $ccNum = $('#cc-num');
 const $zip = $('#zip');
@@ -44,6 +45,7 @@ $(() => {
     $shirtColorContainer.hide();
     createPriceDisplay();
     $('option[value="credit card"]').prop('selected', true);
+
     // Paypal
     $paypal.hide();
     // Bitcoin
@@ -189,14 +191,14 @@ const validateName = () => {
         $('#nameError span').text('Field blank, please enter your name');
         showErrorMessage($nameError);
         hideOkMessage($nameOk);
-        $userNameField.css('border', '3px solid #f80606');
+        $userNameField.css('border', '2px solid #f80606');
         return false;
     } else {
         $('#nameOk span').text('Name OK');
         hideErrorMessage($nameError);
         showOkMessage($nameOk);
         $userNameField.css({border: '',
-                            borderBottom: '3px solid #4bf806'});
+                            borderBottom: '2px solid #4bf806'});
         return true;
     }
 }
@@ -209,7 +211,7 @@ const validateEmail = () => {
         $('#emailError span').text('Field blank, please enter your email');
         hideOkMessage($emailOk);
         showErrorMessage($emailError);
-        $userEmail.css('border', '3px solid #f80606');
+        $userEmail.css('border', '2px solid #f80606');
         return false;
     }
     
@@ -218,7 +220,7 @@ const validateEmail = () => {
         hideErrorMessage($emailError);
         showOkMessage($emailOk);
         $userEmail.css({border: '',
-                        borderBottom: '3px solid #4bf806'});
+                        borderBottom: '2px solid #4bf806'});
         return true;
     }
 
@@ -226,7 +228,7 @@ const validateEmail = () => {
         $('#emailError span').text('Not a valide email address');
         hideOkMessage($emailOk);
         showErrorMessage($emailError);
-        $userEmail.css('border', '3px solid #f80606');
+        $userEmail.css('border', '2px solid #f80606');
         return false;
     }
 }
@@ -269,20 +271,30 @@ const validCard = () => {
     if (cardNumberLength === 0) {
         showErrorMessage($creditCardError);
         $('#creditCardError span').text('Field blank, please enter the card number');
-        $ccNum.css('border', '3px solid #f80606');
+        $ccNum.prev().css('color', '#f80606');
+        $ccNum.css({
+            borderBottom: '2px solid #f80606',
+            marginBottom: '1em'
+        });
         hideOkMessage($creditCardOk);
         return false;        
     } else if (!isNaN(parseInt(cardNumber)) && (cardNumberLength >= 13 && cardNumberLength <= 15)) {
         showOkMessage($creditCardOk);
         $('#creditCardOk span').text('Card number OK');
+        $ccNum.prev().css('color', '');
         $ccNum.css({border: '',
-                    borderBottom: '3px solid #4bf806'});
+                    borderBottom: '2px solid #4bf806',
+                    marginBottom: '1em'});
         hideErrorMessage($creditCardError);
         return true;
     } else {
         showErrorMessage($creditCardError);
         $('#creditCardError span').text('Not a valid card number');
-        $ccNum.css('border', '3px solid #f80606');
+        $ccNum.prev().css('color', '#f80606');
+        $ccNum.css({
+            borderBottom: '2px solid #f80606',
+            marginBottom: '1em'
+        });
         hideOkMessage($creditCardOk);
         return false
     }
@@ -294,20 +306,30 @@ const validZip = () => {
     if (zipCodeLength === 0) {
         showErrorMessage($zipError);
         $('#zipError span').text('Field blank, please enter the your zip number');
-        $zip.css('border', '3px solid #f80606');
+        $zip.prev().css('color', '#f80606');
+        $zip.css({
+            borderBottom: '2px solid #f80606',
+            marginBottom: '1em'
+        });
         hideOkMessage($zipOk); 
         return false;       
     } else if (!isNaN(parseInt(zipCode)) && (zipCodeLength === 5)) {
         showOkMessage($zipOk);
         $('#zipOk span').text('Zip number OK');
+        $zip.prev().css('color', '');
         $zip.css({border: '',
-                  borderBottom: '3px solid #4bf806'});
+                    borderBottom: '2px solid #4bf806',
+                    marginBottom: '1em'});
         hideErrorMessage($zipError);
         return true;
     } else {
         showErrorMessage($zipError);
         $('#zipError span').text('Not a valid zip number');
-        $zip.css('border', '3px solid #f80606');
+        $zip.prev().css('color', '#f80606');
+        $zip.css({
+            borderBottom: '2px solid #f80606',
+            marginBottom: '1em'
+        });
         hideOkMessage($zipOk);
         return false;
     }
@@ -319,20 +341,30 @@ const validCvv = () => {
     if (cvvNumberLength === 0) {
         showErrorMessage($cvvError);
         $('#cvvError span').text('Field blank, please enter the CVV number');
-        $cvv.css('border', '3px solid #f80606');
+        $cvv.prev().css('color', '#f80606');
+        $cvv.css({
+            borderBottom: '2px solid #f80606',
+            marginBottom: '1em'
+        });
         hideOkMessage($cvvOk);
         return false;
     } else if (!isNaN(parseInt(cvvNumber)) && (cvvNumberLength === 3)) {
         showOkMessage($cvvOk);
         $('#cvvOk span').text('CVV number OK');
+        $cvv.prev().css('color', '');
         $cvv.css({border: '',
-                  borderBottom: '3px solid #4bf806'});
+                    borderBottom: '2px solid #4bf806',
+                    marginBottom: '1em'});
         hideErrorMessage($cvvError);
         return true;
     } else {
         showErrorMessage($cvvError);
         $('#cvvError span').text('Not a valid CVV number');
-        $cvv.css('border', '3px solid #f80606');
+        $cvv.prev().css('color', '#f80606');
+        $cvv.css({
+            borderBottom: '2px solid #f80606',
+            marginBottom: '1em'
+        });
         hideOkMessage($cvvOk);
         return false;
     }
