@@ -1,15 +1,5 @@
-/*
-<i class="far fa-check-circle"></i>  OK
-<i class="fas fa-exclamation-triangle"></i> Error
-<i class="fas fa-info-circle"></i> info
-
-border-bottom: 3px solid #1e06f8; input field border style on focus
-border-bottom: 3px solid #4bf806; input field border style on ok
-border: 3px solid #f80606; input field border style on error
-
-*/
-
 // Selecting form elements for further work
+const $form = $('form');
 // Basic info section
 const $nameLabel = $('form fieldset label[for="name"]');
 const $userNameField = $('#name');
@@ -63,9 +53,9 @@ $(() => {
 /*
  Helper function to create labels for messages
     Parameters:
-        icon: Icon for the message
+        icon: Icon for the message from FontAwesome
         position: DOM element after witch the label is inserted
-        displayType: CSS display propety
+        displayType: CSS display propety none/block
         id: ID that identifying the label
         col: CSS color
 */
@@ -86,8 +76,6 @@ const $nameError = generateLabel('<i class="fas fa-exclamation-triangle"></i>',
                                  'nameError', 
                                  '#f80606');
 
-$nameError.prev().css('display', 'inline-block');
-
 const $nameOk = generateLabel('<i class="far fa-check-circle"></i>', 
                               $nameLabel, 
                               'none', 
@@ -100,8 +88,6 @@ const $emailError = generateLabel('<i class="fas fa-exclamation-triangle"></i>',
                                   'none', 
                                   'emailError', 
                                   '#f80606');
-
-$emailError.prev().css('display', 'inline-block');
 
 const $emailOk = generateLabel('<i class="far fa-check-circle"></i>', 
                                $emailLabel, 
@@ -163,14 +149,20 @@ const $creditCardOk = generateLabel('<i class="far fa-check-circle"></i>',
                                   'creditCardOk', 
                                   '#4bf806');
 
+// Creating error message for no payment option
+const $paymentError = generateLabel('<i class="fas fa-exclamation-triangle"></i>', 
+                                        $payment, 
+                                        'none', 
+                                        'paymentError', 
+                                        '#f80606');
+
 // Helper functions to display and hide messages
 const hideErrorMessage = (message) => {
     message.css('display', 'none');
 }
 
 const showErrorMessage = (message) => {
-    message.css('display', 'block')
-    message.fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500);
+    message.css('display', 'block');
 }
 
 const showOkMessage = (message) => {
@@ -181,6 +173,16 @@ const hideOkMessage = (message) => {
     message.css('display', 'none');
 }
 
+// Create label for the total price to display
+const createPriceDisplay = () => {
+    $activity.append(`<label id="total">Total price: $<span id="price"></span></label>`);
+    $('label#total').css({
+        color : '#184f68',
+        fontWeight: 'bold',
+    });
+    $('#total').hide();
+}
+
 // Function to validate name field
 const validateName = () => {
     if ($userNameField.val().length === 0) {
@@ -188,47 +190,44 @@ const validateName = () => {
         showErrorMessage($nameError);
         hideOkMessage($nameOk);
         $userNameField.css('border', '3px solid #f80606');
+        return false;
     } else {
-        const isValidName = () => /\w+\s\w+/i.test($userNameField.val());
-                   
-        if (isValidName() === true) {
-            $('#nameOk span').text('Name OK');
-            hideErrorMessage($nameError);
-            showOkMessage($nameOk);
-            $userNameField.css({border: '',
+        $('#nameOk span').text('Name OK');
+        hideErrorMessage($nameError);
+        showOkMessage($nameOk);
+        $userNameField.css({border: '',
                             borderBottom: '3px solid #4bf806'});
-        } else {
-            $('#nameError span').text('Not a valide name');
-            showErrorMessage($nameError);
-            hideOkMessage($nameOk);
-            $userNameField.css('border', '3px solid #f80606');
-        }
+        return true;
     }
 }
 
-// Function to validate email address
-const validateEmail = () => {
+// Functions to validate email address
+const isValidEmail = () => /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/i.test($userEmail.val());
 
+const validateEmail = () => {
     if ($userEmail.val().length === 0) {
         $('#emailError span').text('Field blank, please enter your email');
-        showErrorMessage($emailError);
         hideOkMessage($emailOk);
+        showErrorMessage($emailError);
         $userEmail.css('border', '3px solid #f80606');
-    } else {
-        const isValidEmail = () => /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i.test($userEmail.val());
-                    
-        if (isValidEmail() === true) {
-            $('#emailOk span').text('Email address OK');
-            hideErrorMessage($emailError);
-            showOkMessage($emailOk);
-            $userEmail.css({border: '',
-                            borderBottom: '3px solid #4bf806'});
-        } else {
-            $('#emailError span').text('Not a valide email address');
-            showErrorMessage($emailError);
-            hideOkMessage($emailOk);
-            $userEmail.css('border', '3px solid #f80606');
-        }
+        return false;
+    }
+    
+    if (isValidEmail() === true) {    
+        $('#emailOk span').text('Email address OK');
+        hideErrorMessage($emailError);
+        showOkMessage($emailOk);
+        $userEmail.css({border: '',
+                        borderBottom: '3px solid #4bf806'});
+        return true;
+    }
+
+    if (isValidEmail() === false || $userEmail.val().length === 0) {
+        $('#emailError span').text('Not a valide email address');
+        hideOkMessage($emailOk);
+        showErrorMessage($emailError);
+        $userEmail.css('border', '3px solid #f80606');
+        return false;
     }
 }
 
@@ -246,6 +245,7 @@ const validateActivity = () => {
     $activities.each(function() {
          if ($(this).is(':checked') === true) {
              counter += 1;
+             hideErrorMessage($activityError);
          }
     })
 
@@ -253,130 +253,130 @@ const validateActivity = () => {
         $('#activityError span').text('No activity selected');
          showErrorMessage($activityError);
          hideOkMessage($activityOk);
+         return false;
     } else {
         $('#activityOk span').text('Activity selected');
          showOkMessage($activityOk);
          hideErrorMessage($activityError);
+         return true;
     }
 }
 
-// Function to validate credit card
-const validateCreditCard = () => {
+// Functions to validate credit card payment
+const validCard = () => {
     let cardNumberLength = $ccNum.val().length;
-    let zipCodeLength = $zip.val().length;
-    let cvvNumberLength = $cvv.val().length;
     let cardNumber = parseInt($ccNum.val());
-    let zipCode = parseInt($zip.val());
-    let cvvNumber = parseInt($cvv.val());
-
     if (cardNumberLength === 0) {
         showErrorMessage($creditCardError);
         $('#creditCardError span').text('Field blank, please enter the card number');
         $ccNum.css('border', '3px solid #f80606');
-        hideOkMessage($creditCardOk);        
+        hideOkMessage($creditCardOk);
+        return false;        
     } else if (!isNaN(parseInt(cardNumber)) && (cardNumberLength >= 13 && cardNumberLength <= 15)) {
         showOkMessage($creditCardOk);
         $('#creditCardOk span').text('Card number OK');
         $ccNum.css({border: '',
                     borderBottom: '3px solid #4bf806'});
         hideErrorMessage($creditCardError);
+        return true;
     } else {
         showErrorMessage($creditCardError);
         $('#creditCardError span').text('Not a valid card number');
         $ccNum.css('border', '3px solid #f80606');
         hideOkMessage($creditCardOk);
+        return false
     }
+}
 
+const validZip = () => {
+    let zipCodeLength = $zip.val().length;
+    let zipCode = parseInt($zip.val());
     if (zipCodeLength === 0) {
         showErrorMessage($zipError);
         $('#zipError span').text('Field blank, please enter the your zip number');
         $zip.css('border', '3px solid #f80606');
-        hideOkMessage($zipOk);        
+        hideOkMessage($zipOk); 
+        return false;       
     } else if (!isNaN(parseInt(zipCode)) && (zipCodeLength === 5)) {
         showOkMessage($zipOk);
         $('#zipOk span').text('Zip number OK');
         $zip.css({border: '',
                   borderBottom: '3px solid #4bf806'});
         hideErrorMessage($zipError);
+        return true;
     } else {
         showErrorMessage($zipError);
         $('#zipError span').text('Not a valid zip number');
         $zip.css('border', '3px solid #f80606');
         hideOkMessage($zipOk);
+        return false;
     }
+}
 
+const validCvv = () => {
+    let cvvNumberLength = $cvv.val().length;
+    let cvvNumber = parseInt($cvv.val());
     if (cvvNumberLength === 0) {
         showErrorMessage($cvvError);
         $('#cvvError span').text('Field blank, please enter the CVV number');
         $cvv.css('border', '3px solid #f80606');
-        hideOkMessage($cvvOk);        
+        hideOkMessage($cvvOk);
+        return false;
     } else if (!isNaN(parseInt(cvvNumber)) && (cvvNumberLength === 3)) {
         showOkMessage($cvvOk);
         $('#cvvOk span').text('CVV number OK');
         $cvv.css({border: '',
                   borderBottom: '3px solid #4bf806'});
         hideErrorMessage($cvvError);
+        return true;
     } else {
         showErrorMessage($cvvError);
         $('#cvvError span').text('Not a valid CVV number');
         $cvv.css('border', '3px solid #f80606');
         hideOkMessage($cvvOk);
+        return false;
     }
 }
 
-// Create label for the total price to display
-const createPriceDisplay = () => {
-    $activity.append(`<label id="total">Total price: $<span id="price"></span></label>`);
-    $('label#total').css({
-        color : '#184f68',
-        fontWeight: 'bold',
-    });
-    $('#total').hide();
+// Checking that one payment option is selected or not
+const validatePayment = () => {
+    if ($('option[value="select_method"]').is(':selected')) {
+        $('#paymentError span').text('No payment methode selected');
+        showErrorMessage($paymentError);
+        return false;
+    } else {
+        hideErrorMessage($paymentError);
+        return true;
+    }
 }
 
 // Event listeners
-$userEmail.on('keyup', () => validateEmail());
-$ccNum.on('keyup', () => validateCreditCard());
-$zip.on('keyup', () => validateCreditCard());
-$cvv.on('keyup', () => validateCreditCard());
+$userEmail.on('keyup blur', () => {
+    isValidEmail();
+    validateEmail();
+});
+$userNameField.on('blur keyup', () => validateName());
+$ccNum.on('keyup blur', () => validCard());
+$zip.on('keyup blur', () => validZip());
+$cvv.on('keyup blur', () => validCvv());
 
-$userNameField.on('focus', () => {
-    hideErrorMessage($nameError);
-    hideOkMessage($nameOk);
-})
-
-$userEmail.on('focus', () => {
-    hideErrorMessage($emailError);
-    hideOkMessage($emailOk);
-})
-
-$ccNum.on('focus', () => {
-    hideErrorMessage($creditCardError);
-    hideOkMessage($creditCardOk);
-})
-
-$zip.on('focus', () => {
-    hideErrorMessage($zipError);
-    hideOkMessage($zipOk);
-})
-
-$cvv.on('focus', () => {
-    hideErrorMessage($cvvError);
-    hideOkMessage($cvvOk);
-})
-
-// Disable the activity that is in the same time as the chosen
+// Disable the activity that is in the same time as the choosen one
+/*
+This function cuts out the day and time from the selected checkbox parent labels text and puts it in an array
+if any other option has the same day and time in his text then disables it
+*/
 $activities.on('change', function() {
+    //Cutting out the date and time from the labels text    
     let dayAndHour = $(this).parent().text().slice($(this).parent().text().indexOf('—') + 2, $(this).parent().text().indexOf('$'));
     $('#total').show();
-    
+    hideErrorMessage($activityError);
+
     if (!activityTime.includes(dayAndHour)) {
-        activityTime.push(dayAndHour);
-                
+        activityTime.push(dayAndHour);      
     } else if ($(this).is(':checked') === false && activityTime.includes(dayAndHour) === true) {
         activityTime.splice(activityTime.indexOf(dayAndHour), 1);
     }
-
+    // Cutting out the price from the end of the labels text
     let $cost = $(this).parent().text().slice($(this).parent().text().indexOf('$') + 1, $(this).parent().text().length);
     let dollars = $('#price').text();
     if ($(this).is(':checked') === true) {
@@ -388,8 +388,7 @@ $activities.on('change', function() {
     }
     $('#price').text(dollars);
 
-    $activities.each(function() {
-               
+    $activities.each(function() {        
         if (!$(this).is(':checked') && activityTime.includes($(this).parent().text().slice($(this).parent().text().indexOf('—') + 2, $(this).parent().text().indexOf('$')))) {
                 $(this).prop('disabled', true);
                 $(this).parent().css({
@@ -408,8 +407,7 @@ $activities.on('change', function() {
     })
 })
 
-
-// Listening to change event and if the other option is selectef the textfield appears to enter job role
+// Listening to change event and if the other option is selected the textfield appears to enter job role
 $jobTitle.on('change', () => {
    if ($jobTitle.val() === 'other') {
     $jobRoleField.show();
@@ -447,9 +445,10 @@ $shirtDesign.on('change', () => {
                 $colors.eq(3).prop('selected', true)
                 break;
     }
-    validating('color'); 
+    validateColors(); 
 });
 
+// Payment methodes, shows just the selected option
 $payment.on('change', () => {
 
     switch ($payment.val()) {
@@ -458,32 +457,61 @@ $payment.on('change', () => {
                             $paypal.hide();
                             $bitcoin.hide();
                             break;
-
         case 'paypal' : 
                         $creditCard.hide();
                         $paypal.show();
                         $bitcoin.hide();
                         break;
-
         case 'bitcoin' :
                         $creditCard.hide();
                         $paypal.hide();
                         $bitcoin.show();
                         break;
-
-        case 'select methode' :
+        case 'select_method' :
                         $creditCard.hide();
                         $paypal.hide();
                         $bitcoin.hide();
                         break;
     }
 
+    if (!$('option[value="credit card"]').is(':selected')) {
+        hideErrorMessage($creditCardError);
+        hideErrorMessage($zipError);
+        hideErrorMessage($cvvError);
+        hideOkMessage($creditCardOk);
+        hideOkMessage($zipOk);
+        hideOkMessage($cvvOk);
+        $ccNum.css('border', '');
+        $zip.css('border', '');
+        $cvv.css('border', '');
+    }
+
+    if (!$('option[value="select_method"]').is(':selected')) {
+        hideErrorMessage($paymentError);
+    }
 })
 
-
-// Preventing the form default submit function with the preventDefault methode
+// Validating the required fields and if everything is ok the form is submited,
+// else preventDefault() methode is called
 $submit.on('click', (e) => {
-    e.preventDefault();
-    validating('activity');
-    validateCreditCard();
+    let validName = validateName();
+    let valiEmail = validateEmail();
+    let validActivity = validateActivity();
+    let validPayment = validatePayment();
+    let validCCNumber = false;
+    let validateZip = false;
+    let validateCvv = false;
+
+    if ($('option[value="credit card"]').is(':selected')) {
+        validCCNumber = validCard();
+        validateZip = validZip();
+        validateCvv = validCvv();
+    }
+
+    if ((validName && valiEmail && validActivity && validPayment) ||
+    (validName && valiEmail && validActivity && validCCNumber && validateZip && validateCvv)) {
+        $form.submit();
+    } else {
+        e.preventDefault(); 
+    }
 })
