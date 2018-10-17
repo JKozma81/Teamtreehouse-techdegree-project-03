@@ -265,9 +265,11 @@ const validateActivity = () => {
 }
 
 // Functions to validate credit card payment
+const isValidCCard = () => /^[0-9]*$/.test($ccNum.val());
+
 const validCard = () => {
     let cardNumberLength = $ccNum.val().length;
-    let cardNumber = parseInt($ccNum.val());
+    let cardNumber = parseInt($ccNum.val(), 10);
     if (cardNumberLength === 0) {
         showErrorMessage($creditCardError);
         $('#creditCardError span').text('Field blank, please enter the card number');
@@ -278,7 +280,7 @@ const validCard = () => {
         });
         hideOkMessage($creditCardOk);
         return false;        
-    } else if (!isNaN(parseInt(cardNumber)) && (cardNumberLength >= 13 && cardNumberLength <= 15)) {
+    } else if (!isNaN(parseInt(cardNumber), 10) && (cardNumberLength >= 13 && cardNumberLength <= 15) && isValidCCard()) {
         showOkMessage($creditCardOk);
         $('#creditCardOk span').text('Card number OK');
         $ccNum.prev().css('color', '');
@@ -300,9 +302,10 @@ const validCard = () => {
     }
 }
 
+const isValidZipNumber = () => /^[0-9]*$/.test($zip.val());
 const validZip = () => {
     let zipCodeLength = $zip.val().length;
-    let zipCode = parseInt($zip.val());
+    let zipCode = parseInt($zip.val(), 10);
     if (zipCodeLength === 0) {
         showErrorMessage($zipError);
         $('#zipError span').text('Field blank, please enter the your zip number');
@@ -313,7 +316,7 @@ const validZip = () => {
         });
         hideOkMessage($zipOk); 
         return false;       
-    } else if (!isNaN(parseInt(zipCode)) && (zipCodeLength === 5)) {
+    } else if (!isNaN(parseInt(zipCode, 10)) && (zipCodeLength === 5) && isValidZipNumber()) {
         showOkMessage($zipOk);
         $('#zipOk span').text('Zip number OK');
         $zip.prev().css('color', '');
@@ -335,9 +338,13 @@ const validZip = () => {
     }
 }
 
+// ^[0-9]*$
+const isValidCvvNumber = () => /^[0-9]*$/.test($cvv.val());
+
 const validCvv = () => {
     let cvvNumberLength = $cvv.val().length;
-    let cvvNumber = parseInt($cvv.val());
+    let cvvNumber = parseInt($cvv.val(), 10);
+    
     if (cvvNumberLength === 0) {
         showErrorMessage($cvvError);
         $('#cvvError span').text('Field blank, please enter the CVV number');
@@ -348,7 +355,7 @@ const validCvv = () => {
         });
         hideOkMessage($cvvOk);
         return false;
-    } else if (!isNaN(parseInt(cvvNumber)) && (cvvNumberLength === 3)) {
+    } else if (!isNaN(parseInt(cvvNumber), 10) && (cvvNumberLength === 3) && isValidCvvNumber()) {
         showOkMessage($cvvOk);
         $('#cvvOk span').text('CVV number OK');
         $cvv.prev().css('color', '');
@@ -412,10 +419,10 @@ $activities.on('change', function() {
     let $cost = $(this).parent().text().slice($(this).parent().text().indexOf('$') + 1, $(this).parent().text().length);
     let dollars = $('#price').text();
     if ($(this).is(':checked') === true) {
-        priceToPay += parseInt($cost);
+        priceToPay += parseInt($cost, 10);
         dollars = priceToPay;
     } else {
-        priceToPay -= parseInt($cost);
+        priceToPay -= parseInt($cost, 10);
         dollars = priceToPay;
     }
     $('#price').text(dollars);
